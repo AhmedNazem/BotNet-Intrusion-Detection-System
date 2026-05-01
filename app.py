@@ -72,7 +72,9 @@ def load_artifacts():
 
 @st.cache_data(show_spinner="Loading dataset…")
 def load_dataset():
-    return pd.read_csv('archive/output.csv')
+    if os.path.exists('archive/output.csv'):
+        return pd.read_csv('archive/output.csv')
+    return pd.read_csv('sample_data.csv')
 
 
 # ── Prediction helper ─────────────────────────────────────────────────────────
@@ -153,6 +155,11 @@ with tab1:
         n_samples = st.slider("Number of samples", min_value=10, max_value=500, value=100, step=10)
 
     df_data = load_dataset()
+
+    if os.path.exists('archive/output.csv'):
+        st.info(f"Using full dataset — {len(df_data):,} rows loaded.")
+    else:
+        st.warning("Full dataset not found locally. Using sample_data.csv (1,350 rows). Download the full dataset to use all 3.2M records.")
 
     if st.button("▶ Run Predictions", type="primary", key="run_demo"):
         sample_df = df_data.sample(n=n_samples, random_state=42).reset_index(drop=True)
